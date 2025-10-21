@@ -10,6 +10,7 @@ tasks:
       - task: clone-bigbang
       - task: test
       - task: test-cluster
+      - task: deploy
 
   clone-bigbang:
     desc: Clone bigbang from repo1 if its not already cloned
@@ -36,3 +37,15 @@ tasks:
         --set=registry1.password=$REGISTRY1_PASSWORD
         --show-only=templates/k3d-config.yaml > dist/k3d.yaml
       - k3d cluster delete --config dist/k3d.yaml && k3d cluster create --config dist/k3d.yaml
+
+  deploy:
+    desc: deploy test bigbang
+    cmds:
+      - yq eval 'select(.metadata.name == "bigbang-k3d-dev-values") | .stringData["values.yaml"]' dist/bootstrap.yaml > dist/dev-values.yaml
+      - helm upgrade --install bigbang {{.BIGBANG_DIR}}/chart
+        --namespace=bigbang --create-namespace --values {{.BIGBANG_DIR}}/tests/test-values.yaml
+        --values {{.BIGBANG_DIR}}/chart/ingress-certs.yaml
+        --values dist/dev-values.yaml
+        --set=registryCredentials.username=$REGISTRY1_USERNAME
+        --set=flux.interval=5s
+      - kubectl wait helmrelease -A --selector=app.kubernetes.io/instance=bigbang --for=condition=ready --timeout=800s
