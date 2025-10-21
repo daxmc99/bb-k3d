@@ -25,7 +25,6 @@ k3d:
         - loki.dev.bigbang.mil
         - grafana.dev.bigbang.mil
         - twistlock.dev.bigbang.mil
-        - keycloak.dev.bigbang.mil
         - sonarqube.dev.bigbang.mil
 
   volumeBaseDir: "/home/rob"
