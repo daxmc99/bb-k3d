@@ -27,14 +27,12 @@ tasks:
     cmds:
       - mkdir -p dist
       - echo "Generating bootstrap.yaml (flux + metallb + nginx)"
-      - helm template k3d "{{.BIGBANG_K3D_CHART}}"
-        --set=registry1.username=$REGISTRY1_USERNAME 
-        --set=registry1.password=$REGISTRY1_PASSWORD > dist/bootstrap.yaml
+      - helm template k3d "{{.BIGBANG_K3D_CHART}}" > dist/bootstrap.yaml
       - echo "Generating k3d-config"
       - helm template k3d "{{.BIGBANG_K3D_CHART}}"
         --set=k3d.volumeBaseDir=$(pwd)/dist
-        --set=registry1.username=$REGISTRY1_USERNAME
-        --set=registry1.password=$REGISTRY1_PASSWORD
+        --set=registry1.username='${REGISTRY1_USERNAME}'
+        --set=registry1.password='${REGISTRY1_PASSWORD}'
         --show-only=templates/k3d-config.yaml > dist/k3d.yaml
       - k3d cluster delete --config dist/k3d.yaml && k3d cluster create --config dist/k3d.yaml
 
@@ -46,6 +44,5 @@ tasks:
         --namespace=bigbang --create-namespace --values {{.BIGBANG_DIR}}/tests/test-values.yaml
         --values {{.BIGBANG_DIR}}/chart/ingress-certs.yaml
         --values dist/dev-values.yaml
-        --set=registryCredentials.username=$REGISTRY1_USERNAME
         --set=flux.interval=5s
       - kubectl wait helmrelease -A --selector=app.kubernetes.io/instance=bigbang --for=condition=ready --timeout=800s
