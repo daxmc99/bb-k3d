@@ -22,9 +22,14 @@ volumes:
     nodeFilters:
       - server:0
       - agent:*
+ports:
+  - port: 80:80
+    nodeFilters:
+      - server:*
+  - port: 443:443
+    nodeFilters:
+      - server:*
 options:
-  k3d:
-    disableLoadbalancer: true
   k3s:
     extraArgs:
       - arg: --tls-san={{ .Values.k3d.serverIP }}
@@ -59,4 +64,3 @@ files:
   - description: 'Bootstrap'
     source: bootstrap.yaml
     destination: /var/lib/rancher/k3s/server/manifests/bootstrap.yaml
-  

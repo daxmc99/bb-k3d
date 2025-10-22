@@ -1,0 +1,48 @@
+version: '3'
+
+vars:
+  BIGBANG_DIR: dist/bigbang
+  BIGBANG_K3D_CHART: chart
+
+tasks:
+  default:
+    cmds:
+      - task: clone-bigbang
+      - task: test
+      - task: test-cluster
+      - task: deploy
+
+  clone-bigbang:
+    desc: Clone bigbang from repo1 if its not already cloned
+    cmds:
+      - if [ ! -d "{{.BIGBANG_DIR}}" ]; then git clone https://repo1.dso.mil/big-bang/bigbang dist/bigbang; fi
+
+  test:
+    desc: Run helm lint
+    cmds:
+      - helm lint chart
+
+  test-cluster:
+    desc: Test cluster setup
+    cmds:
+      - mkdir -p dist
+      - echo "Generating bootstrap.yaml (flux + metallb + nginx)"
+      - helm template k3d "{{.BIGBANG_K3D_CHART}}" > dist/bootstrap.yaml
+      - echo "Generating k3d-config"
+      - helm template k3d "{{.BIGBANG_K3D_CHART}}"
+        --set=k3d.volumeBaseDir=$(pwd)/dist
+        --set=registry1.username='${REGISTRY1_USERNAME}'
+        --set=registry1.password='${REGISTRY1_PASSWORD}'
+        --show-only=templates/k3d-config.yaml > dist/k3d.yaml
+      - k3d cluster delete --config dist/k3d.yaml && k3d cluster create --config dist/k3d.yaml
+
+  deploy:
+    desc: deploy test bigbang
+    cmds:
+      - yq eval 'select(.metadata.name == "bigbang-k3d-dev-values") | .stringData["values.yaml"]' dist/bootstrap.yaml > dist/dev-values.yaml
+      - helm upgrade --install bigbang {{.BIGBANG_DIR}}/chart
+        --namespace=bigbang --create-namespace --values {{.BIGBANG_DIR}}/tests/test-values.yaml
+        --values {{.BIGBANG_DIR}}/chart/ingress-certs.yaml
+        --values dist/dev-values.yaml
+        --set=flux.interval=5s
+      - kubectl wait helmrelease -A --selector=app.kubernetes.io/instance=bigbang --for=condition=ready --timeout=800s

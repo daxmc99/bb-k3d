@@ -7,12 +7,12 @@ k3d:
  
   hostAliases:
     passthrough:
-      ip: "172.28.0.3"
+      ip: "172.28.0.4"
       hostnames:
         - keycloak.dev.bigbang.mil
         - vault.dev.bigbang.mil
     public:
-      ip: "172.28.0.2"
+      ip: "172.28.0.3"
       hostnames:
         - gitlab.dev.bigbang.mil
         - registry.dev.bigbang.mil
