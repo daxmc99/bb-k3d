@@ -26,7 +26,7 @@ tasks:
     desc: Test cluster setup
     cmds:
       - mkdir -p dist
-      - echo "Generating bootstrap.yaml (flux + metallb)"
+      - echo "Generating bootstrap.yaml (flux + metallb + nginx)"
       - helm template k3d "{{.BIGBANG_K3D_CHART}}"
         --set=registry1.username=$REGISTRY1_USERNAME 
         --set=registry1.password=$REGISTRY1_PASSWORD > dist/bootstrap.yaml
