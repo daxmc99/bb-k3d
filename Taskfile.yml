@@ -9,7 +9,8 @@ tasks:
     cmds:
       - task: clone-bigbang
       - task: test
-      - task: test-cluster
+      - task: build:cluster
+      - task: create:cluster
       - task: deploy
 
   clone-bigbang:
@@ -22,7 +23,7 @@ tasks:
     cmds:
       - helm lint chart
 
-  test-cluster:
+  build:cluster:
     desc: Test cluster setup
     cmds:
       - mkdir -p dist
@@ -34,6 +35,10 @@ tasks:
         --set=registry1.username='${REGISTRY1_USERNAME}'
         --set=registry1.password='${REGISTRY1_PASSWORD}'
         --show-only=templates/k3d-config.yaml > dist/k3d.yaml
+
+  create:cluster:
+    desc: Create Cluster
+    cmds:
       - k3d cluster delete --config dist/k3d.yaml && k3d cluster create --config dist/k3d.yaml
 
   deploy:
