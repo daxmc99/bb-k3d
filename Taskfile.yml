@@ -38,6 +38,11 @@ tasks:
 
   create:cluster:
     desc: Create Cluster
+    preconditions:
+      - sh: test -n "${REGISTRY1_USERNAME}"
+        msg: "REGISTRY1_USERNAME environment variable must be set"
+      - sh: test -n "${REGISTRY1_PASSWORD}"
+        msg: "REGISTRY1_PASSWORD environment variable must be set"
     cmds:
       - k3d cluster delete --config dist/k3d.yaml && k3d cluster create --config dist/k3d.yaml
 
