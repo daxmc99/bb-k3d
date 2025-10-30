@@ -23,13 +23,17 @@ docker run \
   -v $(pwd)/output:/output \
   -e REGISTRY1_USERNAME \
   -e REGISTRY1_PASSWORD \
+  -e HOST_VOLUME_PATH=$(pwd)/output \
   rjferguson21/bb-k3d
 ```
 
-**Note**: The `output` directory is used as `k3d.volumeBaseDir`, which means:
+**Note**: The `HOST_VOLUME_PATH` environment variable must be set to the **absolute host path** of the output directory. This is used as `k3d.volumeBaseDir` for mounting volumes into k3d cluster nodes:
 
-- Kubeconfig is written to `output/kubeconfig.yaml`
-- Cypress directory is mounted from `output/cypress` (create it beforehand to avoid warnings)
+- Kubeconfig is written to `output/kubeconfig.yaml` (inside the container at `/output`)
+- Cypress directory is mounted from the **host** at `$(pwd)/output/cypress` into cluster pods at `/cypress`
+- Registry cache is stored at `$(pwd)/output/reg` on the host
+
+Since k3d creates containers on the host Docker daemon (via the mounted socket), volume paths must reference **host paths**, not container paths.
 
 ## What It Does
 
