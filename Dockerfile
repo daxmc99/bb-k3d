@@ -28,9 +28,9 @@ RUN mkdir -p dist && \
 
 # Set entrypoint to regenerate k3d config with output volume, create cluster, and export kubeconfig
 ENTRYPOINT ["sh", "-c", "\
-    echo 'Generating k3d-config with volumeBaseDir=/output' && \
+    echo 'Generating k3d-config with volumeBaseDir=${HOST_VOLUME_PATH:-/output}' && \
     helm template k3d chart \
-        --set=k3d.volumeBaseDir=/output \
+        --set=k3d.volumeBaseDir=\"${HOST_VOLUME_PATH:-/output}\" \
         --set=registry1.username=\"${REGISTRY1_USERNAME}\" \
         --set=registry1.password=\"${REGISTRY1_PASSWORD}\" \
         --show-only=templates/k3d-config.yaml > dist/k3d.yaml && \
@@ -44,4 +44,5 @@ ENTRYPOINT ["sh", "-c", "\
 # docker run -v /var/run/docker.sock:/var/run/docker.sock \
 #   -v $(pwd)/output:/output \
 #   -e REGISTRY1_USERNAME -e REGISTRY1_PASSWORD \
+#   -e HOST_VOLUME_PATH=$(pwd)/output \
 #   rjferguson21/bb-k3d
