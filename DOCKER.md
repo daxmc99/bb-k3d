@@ -2,7 +2,17 @@
 
 This Docker image automates the creation of a k3d cluster with Big Bang configuration.
 
-## Build the Image
+## Using the Published Image
+
+Pull the latest image from GitHub Container Registry:
+
+```bash
+docker pull ghcr.io/rjferguson21/bb-k3d-docker:latest
+```
+
+## Build the Image (Optional)
+
+To build locally instead of using the published image:
 
 ```bash
 docker build -t rjferguson21/bb-k3d .
@@ -24,7 +34,7 @@ docker run \
   -e REGISTRY1_USERNAME \
   -e REGISTRY1_PASSWORD \
   -e HOST_VOLUME_PATH=$(pwd)/output \
-  rjferguson21/bb-k3d
+  ghcr.io/rjferguson21/bb-k3d-docker:latest
 ```
 
 **Note**: The `HOST_VOLUME_PATH` environment variable must be set to the **absolute host path** of the output directory. This is used as `k3d.volumeBaseDir` for mounting volumes into k3d cluster nodes:
