@@ -3,6 +3,7 @@ version: '3'
 vars:
   BIGBANG_DIR: dist/bigbang
   BIGBANG_K3D_CHART: chart
+  USE_PUBLIC_IMAGES: "false"
 
 tasks:
   default:
@@ -29,25 +30,29 @@ tasks:
   test:e2e:
     desc: Run end-to-end tests (clean, clone, build, create cluster, deploy Big Bang)
     cmds:
-      - task: clean
       - task: clone-bigbang
       - task: build:cluster
       - task: create:cluster
       - task: deploy:bigbang
 
-  clean:
+  delete:cluster:
     desc: Clean up dist directory (removes generated configs and Big Bang clone)
     cmds:
+      - k3d cluster delete --config dist/k3d.yaml
       - rm -rf dist
 
   build:cluster:
-    desc: Generate bootstrap.yaml and k3d.yaml configuration files
+    desc: Generate bootstrap.yaml and k3d.yaml configuration files (set USE_PUBLIC_IMAGES=true for public images)
+    vars:
+      USE_PUBLIC: '{{default "false" .USE_PUBLIC_IMAGES}}'
+      VALUES_FLAG: '{{if eq .USE_PUBLIC "true"}}-f {{.BIGBANG_K3D_CHART}}/values-public.yaml{{end}}'
     cmds:
       - mkdir -p dist
       - echo "Generating bootstrap.yaml (flux + metallb + nginx)"
-      - helm template k3d "{{.BIGBANG_K3D_CHART}}" > dist/bootstrap.yaml
+      - helm template k3d "{{.BIGBANG_K3D_CHART}}" {{.VALUES_FLAG}} > dist/bootstrap.yaml
       - echo "Generating k3d-config"
       - helm template k3d "{{.BIGBANG_K3D_CHART}}"
+        {{.VALUES_FLAG}}
         --set=k3d.volumeBaseDir=$(pwd)/dist
         --set=registry1.username='${REGISTRY1_USERNAME}'
         --set=registry1.password='${REGISTRY1_PASSWORD}'

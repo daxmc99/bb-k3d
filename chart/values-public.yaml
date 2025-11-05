@@ -1,0 +1,35 @@
+# values-public.yaml
+# Supplementary values file that replaces all Iron Bank (registry1.dso.mil) images
+# with publicly available alternatives from GitHub Container Registry.
+#
+# Usage:
+#   helm template k3d chart/ -f chart/values-public.yaml
+#
+# Note: This file is intended for CI/CD environments (like GitHub Actions)
+# where registry1.dso.mil credentials are not available.
+
+# Override Flux controller images to use public ghcr.io instead of Iron Bank
+flux:
+  image:
+    repository: ghcr.io/fluxcd/flux-cli
+    tag: v2.4.0
+
+  helmController:
+    image: ghcr.io/fluxcd/helm-controller
+
+  kustomizeController:
+    image: ghcr.io/fluxcd/kustomize-controller
+
+  notificationController:
+    image: ghcr.io/fluxcd/notification-controller
+
+  sourceController:
+    image: ghcr.io/fluxcd/source-controller
+
+  # Remove imagePullSecrets since we're using public images
+  imagePullSecrets: []
+
+# Note: The following images are already public and don't need overrides:
+# - k3d.image: rancher/k3s:v1.33.3-k3s1 (Docker Hub)
+# - nginx: nginx:1.25-alpine (Docker Hub)
+# - MetalLB: quay.io/metallb/controller:v0.13.9 and quay.io/metallb/speaker:v0.13.9

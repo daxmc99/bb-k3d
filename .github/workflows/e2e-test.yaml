@@ -1,0 +1,62 @@
+name: E2E Test
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  e2e-cluster-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install k3d
+        run: |
+          curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
+          k3d version
+
+      - name: Install Task
+        uses: go-task/setup-task@v1
+        with:
+          version: 3.x
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: 'latest'
+
+      - name: Build cluster configuration (with public images)
+        run: task build:cluster USE_PUBLIC_IMAGES=true
+
+      - name: Create K3D cluster
+        run: task create:cluster
+        env:
+          REGISTRY1_USERNAME: ${{ secrets.REGISTRY1_USERNAME }}
+          REGISTRY1_PASSWORD: ${{ secrets.REGISTRY1_PASSWORD }}
+
+      - name: Wait for cluster to be ready
+        run: |
+          kubectl wait --for=condition=Ready nodes --all --timeout=300s
+          kubectl get nodes -o wide
+
+      - name: Display cluster info
+        if: always()
+        run: |
+          echo "=== Cluster Nodes ==="
+          kubectl get nodes || true
+          echo ""
+          echo "=== Docker Containers ==="
+          docker ps --filter "name=k3d-bb-helm" || true
+          echo ""
+          echo "=== Resource Usage ==="
+          docker stats --no-stream $(docker ps --filter "name=k3d-bb-helm" -q) || true
+
+      - name: Cleanup
+        if: always()
+        run: k3d cluster delete bb-helm || true
