@@ -6,25 +6,42 @@ vars:
 
 tasks:
   default:
+    desc: Run all tests (unit + e2e)
     cmds:
-      - task: clone-bigbang
-      - task: test
-      - task: build:cluster
-      - task: create:cluster
-      - task: deploy
+      - task: test:unit
+      - task: test:e2e
 
   clone-bigbang:
-    desc: Clone bigbang from repo1 if its not already cloned
+    desc: Clone Big Bang repository from repo1.dso.mil (if not already present)
     cmds:
       - if [ ! -d "{{.BIGBANG_DIR}}" ]; then git clone https://repo1.dso.mil/big-bang/bigbang dist/bigbang; fi
 
   test:
-    desc: Run helm lint
+    desc: Run helm lint on the chart
     cmds:
       - helm lint chart
 
+  test:unit:
+    desc: Run helm unit tests using helm-unittest plugin
+    cmds:
+      - helm unittest chart
+
+  test:e2e:
+    desc: Run end-to-end tests (clean, clone, build, create cluster, deploy Big Bang)
+    cmds:
+      - task: clean
+      - task: clone-bigbang
+      - task: build:cluster
+      - task: create:cluster
+      - task: deploy:bigbang
+
+  clean:
+    desc: Clean up dist directory (removes generated configs and Big Bang clone)
+    cmds:
+      - rm -rf dist
+
   build:cluster:
-    desc: Test cluster setup
+    desc: Generate bootstrap.yaml and k3d.yaml configuration files
     cmds:
       - mkdir -p dist
       - echo "Generating bootstrap.yaml (flux + metallb + nginx)"
@@ -37,7 +54,7 @@ tasks:
         --show-only=templates/k3d-config.yaml > dist/k3d.yaml
 
   create:cluster:
-    desc: Create Cluster
+    desc: Create K3D cluster using generated k3d.yaml (requires REGISTRY1 env vars)
     preconditions:
       - sh: test -n "${REGISTRY1_USERNAME}"
         msg: "REGISTRY1_USERNAME environment variable must be set"
@@ -46,13 +63,14 @@ tasks:
     cmds:
       - k3d cluster delete --config dist/k3d.yaml && k3d cluster create --config dist/k3d.yaml
 
-  deploy:
-    desc: deploy test bigbang
+  deploy:bigbang:
+    desc: Deploy Big Bang to the K3D cluster and wait for all HelmReleases to be ready
     cmds:
       - yq eval 'select(.metadata.name == "bigbang-k3d-dev-values") | .stringData["values.yaml"]' dist/bootstrap.yaml > dist/dev-values.yaml
       - helm upgrade --install bigbang {{.BIGBANG_DIR}}/chart
         --namespace=bigbang --create-namespace --values {{.BIGBANG_DIR}}/tests/test-values.yaml
         --values {{.BIGBANG_DIR}}/chart/ingress-certs.yaml
+        --values {{.BIGBANG_DIR}}/tests/disable-core-values.yaml
         --values dist/dev-values.yaml
         --set=flux.interval=5s
       - kubectl wait helmrelease -A --selector=app.kubernetes.io/instance=bigbang --for=condition=ready --timeout=800s
