@@ -31,6 +31,12 @@ jobs:
         with:
           version: 'latest'
 
+      - name: Install helm-unittest plugin
+        run: helm plugin install https://github.com/helm-unittest/helm-unittest
+
+      - name: Run Helm unit tests
+        run: task test:unit
+
       - name: Build cluster configuration (with public images)
         run: task build:cluster USE_PUBLIC_IMAGES=true
 
@@ -50,6 +56,9 @@ jobs:
         run: |
           echo "=== Cluster Nodes ==="
           kubectl get nodes || true
+          echo ""
+          echo "=== Cluster Services ==="
+          kubectl get services || true
           echo ""
           echo "=== Docker Containers ==="
           docker ps --filter "name=k3d-bb-helm" || true
