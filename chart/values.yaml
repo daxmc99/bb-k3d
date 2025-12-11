@@ -28,6 +28,7 @@ k3d:
         - grafana.dev.bigbang.mil
         - twistlock.dev.bigbang.mil
         - sonarqube.dev.bigbang.mil
+        - neuvector.dev.bigbang.mil
 
   volumeBaseDir: "/home/rob"
 
