@@ -2,7 +2,8 @@
 apiVersion: k3d.io/v1alpha5
 kind: Simple
 metadata:
-  name: bb-helm 
+  name: bb-helm
+image: {{ .Values.k3d.image }}
 agents: {{ .Values.k3d.nodes }}
 subnet: {{ .Values.k3d.subnet }}
 kubeAPI:

@@ -1,0 +1,65 @@
+suite: test k3d-config template
+templates:
+  - k3d-config.yaml
+tests:
+  - it: should render k3d config with default values
+    asserts:
+      - matchRegex:
+          path: kind
+          pattern: "^Simple$"
+      - equal:
+          path: apiVersion
+          value: k3d.io/v1alpha5
+      - equal:
+          path: metadata.name
+          value: bb-helm
+      - equal:
+          path: image
+          value: rancher/k3s:v1.33.3-k3s1
+      - equal:
+          path: agents
+          value: 3
+      - equal:
+          path: subnet
+          value: 172.28.0.0/16
+      - equal:
+          path: kubeAPI.hostIP
+          value: 127.0.0.1
+      - equal:
+          path: kubeAPI.hostPort
+          value: "6443"
+
+  - it: should use custom k3d image when specified
+    set:
+      k3d.image: rancher/k3s:v1.30.0-k3s1
+    asserts:
+      - equal:
+          path: image
+          value: rancher/k3s:v1.30.0-k3s1
+
+  - it: should use custom number of nodes when specified
+    set:
+      k3d.nodes: 5
+    asserts:
+      - equal:
+          path: agents
+          value: 5
+
+  - it: should use custom subnet when specified
+    set:
+      k3d.subnet: 10.0.0.0/16
+    asserts:
+      - equal:
+          path: subnet
+          value: 10.0.0.0/16
+
+  - it: should use custom server IP when specified
+    set:
+      k3d.serverIP: 192.168.1.100
+    asserts:
+      - equal:
+          path: kubeAPI.hostIP
+          value: 192.168.1.100
+      - matchRegex:
+          path: options.k3s.extraArgs[0].arg
+          pattern: "--tls-san=192.168.1.100"
