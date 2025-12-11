@@ -32,7 +32,7 @@ jobs:
           version: 'latest'
 
       - name: Install helm-unittest plugin
-        run: helm plugin install -verify=false https://github.com/helm-unittest/helm-unittest
+        run: helm plugin install --verify=false https://github.com/helm-unittest/helm-unittest
 
       - name: Run Helm unit tests
         run: task test:unit
