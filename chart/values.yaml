@@ -31,6 +31,7 @@ k3d:
         - neuvector.dev.bigbang.mil
         - kibana.dev.bigbang.mil
         - harbor.dev.bigbang.mil
+        - backstage.dev.bigbang.mil
 
   volumeBaseDir: "/home/rob"
 
