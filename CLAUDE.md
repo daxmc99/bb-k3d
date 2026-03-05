@@ -38,7 +38,7 @@ These IPs are critical - they must be:
 ```
 bb-k3d/
 ├── chart/                          # Helm chart
-│   ├── Chart.yaml                  # Chart metadata, version 0.2.0
+│   ├── Chart.yaml                  # Chart metadata, version 0.2.7
 │   ├── values.yaml                 # Default configuration values
 │   ├── templates/
 │   │   ├── k3d-config.yaml        # K3D cluster configuration template
@@ -123,22 +123,6 @@ The project uses [Task](https://taskfile.dev) for automation. To see all availab
 
 ```bash
 task --list
-```
-
-Common workflows:
-
-```bash
-# Run all: clone bigbang, lint, build, create cluster, deploy
-task
-
-# Run tests
-task test              # Helm lint
-task test:unit         # Helm unit tests
-
-# Build and deploy
-task build:cluster     # Generate bootstrap.yaml and k3d.yaml
-task create:cluster    # Create K3D cluster
-task deploy            # Deploy Big Bang
 ```
 
 ## Testing
