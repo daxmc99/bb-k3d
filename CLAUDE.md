@@ -38,7 +38,7 @@ These IPs are critical - they must be:
 ```
 bb-k3d/
 ├── chart/                          # Helm chart
-│   ├── Chart.yaml                  # Chart metadata, version 0.2.0
+│   ├── Chart.yaml                  # Chart metadata, version 0.2.7
 │   ├── values.yaml                 # Default configuration values
 │   ├── templates/
 │   │   ├── k3d-config.yaml        # K3D cluster configuration template
