@@ -51,6 +51,25 @@ jobs:
           kubectl wait --for=condition=Ready nodes --all --timeout=300s
           kubectl get nodes -o wide
 
+      - name: Wait for Flux controllers to be ready
+        run: |
+          echo "Waiting for Flux controllers..."
+          kubectl wait deploy/source-controller deploy/helm-controller deploy/kustomize-controller deploy/notification-controller --for=condition=Available --timeout=300s
+          echo ""
+          echo "=== Flux Controllers Status ==="
+          kubectl get deploy -l app=source-controller -l app=helm-controller -l app=kustomize-controller -l app=notification-controller 2>/dev/null || kubectl get deploy | grep -E "controller"
+          echo ""
+          echo "=== Flux Controller Versions ==="
+          kubectl get pods -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.spec.containers[0].image}{"\n"}{end}' | grep controller
+
+      - name: Verify Flux is operational
+        run: |
+          echo "=== Checking Flux source-controller ==="
+          kubectl -n default logs deploy/source-controller --tail=5 || true
+          echo ""
+          echo "=== Checking Flux helm-controller ==="
+          kubectl -n default logs deploy/helm-controller --tail=5 || true
+
       - name: Display cluster info
         if: always()
         run: |
