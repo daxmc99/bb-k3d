@@ -125,22 +125,6 @@ The project uses [Task](https://taskfile.dev) for automation. To see all availab
 task --list
 ```
 
-Common workflows:
-
-```bash
-# Run all: clone bigbang, lint, build, create cluster, deploy
-task
-
-# Run tests
-task test              # Helm lint
-task test:unit         # Helm unit tests
-
-# Build and deploy
-task build:cluster     # Generate bootstrap.yaml and k3d.yaml
-task create:cluster    # Create K3D cluster
-task deploy            # Deploy Big Bang
-```
-
 ## Testing
 
 ### Unit Tests
