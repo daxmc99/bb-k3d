@@ -11,7 +11,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Updated metallb to 0.15.3
 
-
 ## [0.2.7]
 
 ### Added
