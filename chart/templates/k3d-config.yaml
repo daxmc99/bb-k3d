@@ -33,6 +33,11 @@ ports:
 options:
   k3s:
     extraArgs:
+      {{- if not .Values.k3d.metricsServer }}
+      - arg: --disable=metrics-server
+        nodeFilters:
+          - server:*
+      {{- end }}
       - arg: --tls-san={{ .Values.k3d.serverIP }}
         nodeFilters:
           - server:*
