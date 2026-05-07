@@ -54,8 +54,8 @@ tasks:
       - helm template k3d "{{.BIGBANG_K3D_CHART}}"
         {{.VALUES_FLAG}}
         --set=k3d.volumeBaseDir=$(pwd)/dist
-        --set=registry1.username='${REGISTRY1_USERNAME}'
-        --set=registry1.password='${REGISTRY1_PASSWORD}'
+        --set-string=registry1.username="${REGISTRY1_USERNAME}"
+        --set-string=registry1.password="${REGISTRY1_PASSWORD}"
         --show-only=templates/k3d-config.yaml > dist/k3d.yaml
 
   create:cluster:
