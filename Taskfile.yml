@@ -46,6 +46,7 @@ tasks:
     vars:
       USE_PUBLIC: '{{default "false" .USE_PUBLIC_IMAGES}}'
       VALUES_FLAG: '{{if eq .USE_PUBLIC "true"}}-f {{.BIGBANG_K3D_CHART}}/values-public.yaml{{end}}'
+      CREDS_FLAG: '{{if ne .USE_PUBLIC "true"}}--set=registry1.username=${REGISTRY1_USERNAME} --set=registry1.password=${REGISTRY1_PASSWORD}{{end}}'
     cmds:
       - mkdir -p dist
       - echo "Generating bootstrap.yaml (flux + metallb + nginx)"
@@ -54,17 +55,16 @@ tasks:
       - helm template k3d "{{.BIGBANG_K3D_CHART}}"
         {{.VALUES_FLAG}}
         --set=k3d.volumeBaseDir=$(pwd)/dist
-        --set=registry1.username='${REGISTRY1_USERNAME}'
-        --set=registry1.password='${REGISTRY1_PASSWORD}'
+        {{.CREDS_FLAG}}
         --show-only=templates/k3d-config.yaml > dist/k3d.yaml
 
   create:cluster:
-    desc: Create K3D cluster using generated k3d.yaml (requires REGISTRY1 env vars)
+    desc: Create K3D cluster using generated k3d.yaml (requires REGISTRY1 env vars unless USE_PUBLIC_IMAGES=true)
     preconditions:
-      - sh: test -n "${REGISTRY1_USERNAME}"
-        msg: "REGISTRY1_USERNAME environment variable must be set"
-      - sh: test -n "${REGISTRY1_PASSWORD}"
-        msg: "REGISTRY1_PASSWORD environment variable must be set"
+      - sh: '[ "{{.USE_PUBLIC_IMAGES}}" = "true" ] || test -n "${REGISTRY1_USERNAME}"'
+        msg: "REGISTRY1_USERNAME environment variable must be set (or use USE_PUBLIC_IMAGES=true)"
+      - sh: '[ "{{.USE_PUBLIC_IMAGES}}" = "true" ] || test -n "${REGISTRY1_PASSWORD}"'
+        msg: "REGISTRY1_PASSWORD environment variable must be set (or use USE_PUBLIC_IMAGES=true)"
     cmds:
       - k3d cluster delete --config dist/k3d.yaml && k3d cluster create --config dist/k3d.yaml
 
