@@ -41,10 +41,7 @@ jobs:
         run: task build:cluster USE_PUBLIC_IMAGES=true
 
       - name: Create K3D cluster
-        run: task create:cluster
-        env:
-          REGISTRY1_USERNAME: ${{ secrets.REGISTRY1_USERNAME }}
-          REGISTRY1_PASSWORD: ${{ secrets.REGISTRY1_PASSWORD }}
+        run: task create:cluster USE_PUBLIC_IMAGES=true
 
       - name: Wait for cluster to be ready
         run: |
