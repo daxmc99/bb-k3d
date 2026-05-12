@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.1]
+
+### Changed
+
+- Updated Flux controller versions to match Big Bang:
+  - helm-controller: v1.4.5 → v1.5.4
+  - kustomize-controller: v1.7.3 → v1.8.4
+  - notification-controller: v1.7.5 → v1.8.4
+  - source-controller: v1.7.4 → v1.8.3
+
 ## [0.3.0]
 
 ### Changed
