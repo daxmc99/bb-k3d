@@ -29,6 +29,11 @@ flux:
   # Remove imagePullSecrets since we're using public images
   imagePullSecrets: []
 
+# Clear registry1 credentials since we're using public images
+registry1:
+  username: ""
+  password: ""
+
 # Note: The following images are already public and don't need overrides:
 # - k3d.image: rancher/k3s:v1.33.3-k3s1 (Docker Hub)
 # - nginx: nginx:1.25-alpine (Docker Hub)

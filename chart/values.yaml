@@ -62,7 +62,7 @@ flux:
 
   helmController:
     image: registry1.dso.mil/ironbank/fluxcd/helm-controller
-    tag: v1.4.5
+    tag: v1.5.4
     resources:
       limits:
         cpu: 1800m
@@ -89,7 +89,7 @@ flux:
 
   kustomizeController:
     image: registry1.dso.mil/ironbank/fluxcd/kustomize-controller
-    tag: v1.7.3
+    tag: v1.8.4
     resources:
       limits:
         cpu: 600m
@@ -116,7 +116,7 @@ flux:
 
   notificationController:
     image: registry1.dso.mil/ironbank/fluxcd/notification-controller
-    tag: v1.7.5
+    tag: v1.8.4
     resources:
       limits:
         cpu: 200m
@@ -143,7 +143,7 @@ flux:
 
   sourceController:
     image: registry1.dso.mil/ironbank/fluxcd/source-controller
-    tag: v1.7.4
+    tag: v1.8.3
     resources:
       limits:
         cpu: 600m

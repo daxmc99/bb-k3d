@@ -52,8 +52,12 @@ registries:
     name: repo1
     proxy:
       remoteURL: https://{{ .Values.registry1.registry }}
+      {{- if .Values.registry1.username }}
       username: {{ .Values.registry1.username }}
+      {{- end }}
+      {{- if .Values.registry1.password }}
       password: {{ .Values.registry1.password }}
+      {{- end }}
     volumes:
       - {{ .Values.k3d.volumeBaseDir }}/reg:/var/lib/registry
   config: | 
@@ -61,11 +65,13 @@ registries:
       "{{ .Values.registry1.registry }}":
         endpoint:
           - http://repo1:5000
+    {{- if and .Values.registry1.username .Values.registry1.password }}
     configs:
       {{ .Values.registry1.registry }}:
         auth:
           username: {{ .Values.registry1.username }}
           password: {{ .Values.registry1.password }}
+    {{- end }}
 files:
   - description: 'Bootstrap'
     source: bootstrap.yaml
